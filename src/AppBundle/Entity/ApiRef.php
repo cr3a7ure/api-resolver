@@ -16,6 +16,8 @@ use ApiPlatform\Core\Annotation\ApiProperty;
  *     type="test",
  *     collectionOperations={
  *     "special"={"route_name"="api_ref_action", "hydra_context"={"@type"="schema:Action","@id"="searchAPi"}},
+ *     "upload"={"route_name"="api_upload_action", "hydra_context"={"@type"="schema:Action","@id"="searchAPi"}},
+ *     "delete"={"route_name"="api_delete_action", "hydra_context"={"@type"="schema:Action","@id"="searchAPi"}},
  *     "get"={"method"="GET", "hydra_context"={"@type"="schema:TestAction"}}
  * }
  * )
