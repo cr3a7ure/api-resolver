@@ -29,15 +29,22 @@ class ApiRefAction
 {
 
     protected $requestStack;
+    protected $apikey;
 
-    public function __construct(RequestStack $requestStack)
+    public function __construct(RequestStack $requestStack, string $apiKey = null)
     {
         $this->requestStack = $requestStack;
+        dump($apiKeys);
+        $this->apikey = $apiKeys;
     }
 
     protected function getRequest()
     {
         return $this->requestStack->getCurrentRequest();
+    }
+    protected function getApikey()
+    {
+        return $this->apikey;
     }
 
     protected function validateData(string $data)
@@ -305,7 +312,10 @@ class ApiRefAction
     public function __invoke($data)
     {
       $request = $this->getRequest()->getContent();
-      // dump($request);
+      // $test = $container->getParameter('api_key');
+      $test = $this->getApikey();
+      dump($data);
+      dump($test);
 
         $req = '{
   "@context" : {

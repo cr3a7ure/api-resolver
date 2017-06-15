@@ -6,34 +6,67 @@ annotationGenerators:
     - ApiPlatform\SchemaGenerator\AnnotationGenerator\ConstraintAnnotationGenerator
     - ApiPlatform\SchemaGenerator\AnnotationGenerator\ApiPlatformCoreAnnotationGenerator
 
+author: Goutis Dimitris
 types: # The list of type to generated (a PHP entity class by type will be generated)
 
-  GeoCoordinates:
+
+  SoftwareApplication:
     parent: false
     properties:
-      address: {
-        range: PostalAddress }
-      latitude:
-      longitude:
-  Place:
-    properties: {}
-  CivicStructure:
-    properties: {}
-  PostalAddress:
+      name: {range: Text}
+      description: {range: Text}
+      url: {range: URL}
+      image: ~
+      applicationCategory: {range: Text}
+      applicationSubCategory: {range: Text}
+      releaseNotes: {range: Text}
+      softwareVersion: {range: Text}
+      licence: {range: Text}
+      review: {range: Text}
+      keywords: {range: Text}
+      text: {range: Text}
+      isAccessibleForFree: {range: Boolean}
+      provider: {range: Text}
+      datePublished: {range: Date}
+      dateModified: {range: Date}
+      aggregateRating: {range: Text}
+
+  SoftwareApplicationTesting:
+    guessFrom: SoftwareApplication
     parent: false
     properties:
-      addressCountry:
-        range: Text
-      addressLocality: ~
-      addressRegion: ~
-      postalCode: ~
-      streetAddress: ~
-  Thing:
-    properties:
-      name: ~
-  Intangible:
+      name: {range: Text}
+      description: {range: Text}
+      url: {range: URL}
+      image: ~
+      applicationCategory: {range: Text}
+      applicationSubCategory: {range: Text}
+      releaseNotes: {range: Text}
+      softwareVersion: {range: Text}
+      licence: {range: Text}
+      review: {range: Text}
+      keywords: {range: Text}
+      text: {range: Text}
+      isAccessibleForFree: {range: Boolean}
+      provider: {range: Text}
+      datePublished: {range: Date}
+      dateModified: {range: Date}
+      aggregateRating: {range: Text}
+
+  StatsVoc:
     parent: false
-    properties: {}
+    properties:
+      title: {range: Text}
+      description: {range: Text}
+      url: {range: Text, unique: true}
+
+  StatsClass:
+    parent: false
+    properties:
+      title: {range: Text}
+      description: {range: Text}
+      url: {range: Text, unique: true}
+      vocabulary: {range: StatsVoc, cardinality: (1..1)}
 
 
   # BlogPosting: ~ # A type to generate a PHP entity class from, including all its properties (here this type has no specific property, they are all inherited)

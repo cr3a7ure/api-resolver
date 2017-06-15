@@ -1,32 +1,10 @@
 # Learn more about services, parameters and containers at
 # http://symfony.com/doc/current/book/service_container.html
 parameters:
+    api_key: segamw
 #    parameter_name: value
 
 services:
-
-    address.search_filter:
-        parent:    "api_platform.doctrine.orm.search_filter"
-        arguments: [ { id: "exact", addressLocality: "exact"  } ]
-        tags:      [ { name: 'api_platform.filter', id: 'address.search' } ]
-
-    geo_coordinates.search_filter:
-        parent:    "api_platform.doctrine.orm.search_filter"
-        arguments: [ { longitude: "exact", latitude: "exact", address.id: "exact"  } ]
-        tags:      [ { name: 'api_platform.filter', id: 'geo_coordinates.search' } ]
-
-
-    geo_coordinates.collection_data_provider:
-        class: 'AppBundle\DataProvider\GeoCoordinatesCollectionDataProvider'
-        arguments: ["@request_stack"]
-        tags:
-            -  { name: 'api_platform.collection_data_provider', priority: 2 }
-
-    # a_p_i_reference.collection_data_provider:
-    #     class: 'AppBundle\DataProvider\ApiCollectionDataProvider'
-    #     arguments: ["@request_stack"]
-    #     tags:
-    #         -  { name: 'api_platform.collection_data_provider', priority: 2 }
 
 # de xreiasthke
     # action_api_ref_action:
@@ -34,11 +12,11 @@ services:
     #     arguments: ["@request_stack"]
 
 
-    # api_ref.collection_data_provider:
-    #     class: 'AppBundle\DataProvider\ApiCollectionDataProvider'
-    #     arguments: ["@request_stack"]
-    #     tags:
-    #         -  { name: 'api_platform.collection_data_provider', priority: 1 }
+    api_ref_action:
+        class: 'AppBundle\Action\ApiRefAction'
+        arguments: ["@request_stack", "%api_key%"]
+        # tags:
+        #     -  { name: 'api_platform.collection_data_provider', priority: 1 }
 
     # geo_coordinates.custom_geo_filter:
     #     class: 'AppBundle\Filter\CustomGeoFilter'
@@ -48,3 +26,6 @@ services:
 #        parent:    "api_platform.doctrine.orm.order_filter"
 #        arguments: [ { "price": "ASC" } ]
 
+# estate.doctrine_file_listener:
+#         class: estateBundle\EventListener\ImageUploadListener
+#         arguments: ['%argument_gkountas%', '%argument_mitsos%']

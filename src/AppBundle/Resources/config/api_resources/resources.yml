@@ -23,3 +23,9 @@ AppBundle\Entity\ApiRef:
          get:
              method: 'GET'
              hydra_context: { foo: 'Action' }
+
+# AppBundle\Entity\SoftwareApplication:
+#      collectionOperations:
+#          get:
+#              method: 'GET'
+#              hydra_context: { foo: 'Action' }
