@@ -17,7 +17,10 @@ use Symfony\Component\Validator\Constraints as Assert;
  *
  * @ORM\Entity
  * @UniqueEntity("url")
- * @ApiResource(iri="http://schema.org/Thing")
+ * @ApiResource(
+ *         iri="http://schema.org/Thing",
+ *         attributes={"filters"={"statsclass.search"}}
+ *         )
  */
 class StatsClass
 {
