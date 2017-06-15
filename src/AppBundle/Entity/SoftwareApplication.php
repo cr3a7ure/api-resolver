@@ -15,7 +15,11 @@ use Symfony\Component\Validator\Constraints as Assert;
  * @author Goutis Dimitris
  *
  * @ORM\Entity
- * @ApiResource(iri="http://schema.org/SoftwareApplication")
+ * @ApiResource(
+ *         iri="http://schema.org/SoftwareApplication",
+ *         type="http://schema.org/SoftwareApplication",
+ *         attributes={"filters"={"soft_apps.search"}}
+ *         )
  */
 class SoftwareApplication
 {

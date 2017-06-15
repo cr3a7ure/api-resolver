@@ -13,8 +13,13 @@ services:
 
     classes.vocs_search_filter:
         parent:    'api_platform.doctrine.orm.search_filter'
-        arguments: [ { vocabulary: 'exact', url: 'iend' } ]
+        arguments: [ { vocabulary: 'exact', url: 'ipartial' } ]
         tags:      [ { name: 'api_platform.filter', id: 'statsclass.search' } ]
+
+    soft_apps.vocs_search_filter:
+        parent:    'api_platform.doctrine.orm.search_filter'
+        arguments: [ { description: 'ipartial', name: 'ipartial', url: 'exact', applicationCategory: 'ipartial', applicationSubCategory: 'ipartial', isAccessibleForFree: 'exact', aggregateRating: 'exact' } ]
+        tags:      [ { name: 'api_platform.filter', id: 'soft_apps.search' } ]
 
     api_ref_action:
         class: 'AppBundle\Action\ApiRefAction'
