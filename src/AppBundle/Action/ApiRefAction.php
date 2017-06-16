@@ -262,7 +262,7 @@ class ApiRefAction
       $prefix = $this->getDefaultPrefix();
       // FROM <http://localhost:8090/test1/data/apiv17>
       $query = $prefix . "\n".
-      'DESCRIBE ?class ?target'.$propURIList. " .\n          ".
+      'DESCRIBE ?class ?target'.$propURIList. " \n          ".
       'WHERE  {
         ?class rdf:type ' .'<'. $className .'>.
         ?server hydra:supportedClass ?class.
