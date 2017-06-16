@@ -219,6 +219,7 @@ class ApiRefAction
       dump("Creating search query for class ". $class);
       $classProperties = $this->retrieveProperty($graph,$class);
       $propertyOptions = '';
+      $propURIList = '';
       $range = '';
       $i = 1;
       // dump($kapa); ?class hydra:supportedProperty ?props .
@@ -245,6 +246,7 @@ class ApiRefAction
           } //add property Options
           // $propertyOptions .= '?action ' .
         } else {
+          $propURIList .= ' ?prop'.$i.'_IRI';
           $propertyOptions .= '?class' . ' hydra:supportedProperty ' . '?prop'.$i . " .\n          ";
           $propertyOptions .= '?prop'.$i . ' hydra:property ' . '?prop'.$i.'_IRI' . " .\n          ";
           $propertyOptions .= '?prop'.$i.'_IRI' . ' rdf:type ' . $propertyType . " .\n          ";
@@ -260,8 +262,8 @@ class ApiRefAction
       $prefix = $this->getDefaultPrefix();
       // FROM <http://localhost:8090/test1/data/apiv17>
       $query = $prefix . "\n".
-      'DESCRIBE ?class ?target
-      WHERE  {
+      'DESCRIBE ?class ?target'.$propURIList.
+      'WHERE  {
         ?class rdf:type ' .'<'. $className .'>.
         ?server hydra:supportedClass ?class.
         ?server hydra:entrypoint ?entrypoint .
