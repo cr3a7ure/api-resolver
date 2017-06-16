@@ -24,6 +24,10 @@ services:
     api_ref_action:
         class: 'AppBundle\Action\ApiRefAction'
         arguments: ["@request_stack", "%api_key%"]
+
+    soft_apps_upload_action:
+        class: 'AppBundle\Action\SoftwareApplicationUploadAction'
+        arguments: ["@request_stack", "@doctrine"]
         # tags:
         #     -  { name: 'api_platform.collection_data_provider', priority: 1 }
 

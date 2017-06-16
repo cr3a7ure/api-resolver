@@ -34,8 +34,8 @@ class ApiRefAction
     public function __construct(RequestStack $requestStack, string $apiKey = null)
     {
         $this->requestStack = $requestStack;
-        dump($apiKeys);
-        $this->apikey = $apiKeys;
+        $this->apikey = $apiKey;
+        dump($apiKey);
     }
 
     protected function getRequest()

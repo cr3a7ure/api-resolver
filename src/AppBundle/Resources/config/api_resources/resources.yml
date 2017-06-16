@@ -24,8 +24,21 @@ AppBundle\Entity\ApiRef:
              method: 'GET'
              hydra_context: { foo: 'Action' }
 
-# AppBundle\Entity\SoftwareApplication:
-#      collectionOperations:
-#          get:
-#              method: 'GET'
-#              hydra_context: { foo: 'Action' }
+AppBundle\Entity\SoftwareApplication:
+    collectionOperations:
+        get:
+             method: 'GET'
+             hydra_context: { foo: 'Action' }
+        put:
+             method: 'PUT'
+             route_name: 'api_graph_upload_action'
+             hydra_context: { foo: 'Action' }
+    itemOperations:
+        get:
+            method: 'GET'
+            route_name: 'api_graph_retrieve_action'
+        put:
+            method: 'PUT'
+        delete:
+            method: 'DELETE'
+            route_name: 'api_graph_delete_action'
