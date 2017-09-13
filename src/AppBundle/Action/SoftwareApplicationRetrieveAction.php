@@ -78,8 +78,8 @@ class SoftwareApplicationRetrieveAction
       // dump($this->getRequest());
       $graph = '';// new \EasyRdf_Graph();
 
-      if ($this->graphExists($graphUri,'http://vps362714.ovh.net:8090/thesis/query')) {
-        $graph = $this->retrieveGraph($graphUri,'http://vps362714.ovh.net:8090/thesis/query');
+      if ($this->graphExists($graphUri,'http://vps454845.ovh.net:8090/thesis/query')) {
+        $graph = $this->retrieveGraph($graphUri,'http://vps454845.ovh.net:8090/thesis/query');
         // $response = $graph->serialise('jsonld');
         dump($graph);
         $data->setText($graph);
