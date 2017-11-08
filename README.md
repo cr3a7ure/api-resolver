@@ -6,7 +6,8 @@ It serves as an inbetween node in order to semantically match API providers and 
 It requires the Apache Jena/Fuseki for it's triplestore.
 It's role is to save the main JSON-LD graph from other API-Platform servers and match those with the requested APIs from the clients.
 
-Diagram (http://vps454845.ovh.net/schydra/images/hydraEcosystem.png)
+[![Diagram](http://vps454845.ovh.net/schydra/images/hydraEcosystem.png)](http://vps454845.ovh.net/schydra/intro.html)
+
 
 Apache Jena/Fuseki Setup
 -------------------------
