@@ -6,6 +6,8 @@ It serves as an inbetween node in order to semantically match API providers and 
 It requires the Apache Jena/Fuseki for it's triplestore.
 It's role is to save the main JSON-LD graph from other API-Platform servers and match those with the requested APIs from the clients.
 
+Diagram (https://drive.google.com/open?id=0BzKpYQSejhXxM2ljU0tfODFGZFk)
+
 Apache Jena/Fuseki Setup
 -------------------------
 
