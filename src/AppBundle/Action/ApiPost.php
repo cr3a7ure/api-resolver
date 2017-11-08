@@ -5,7 +5,7 @@
 namespace AppBundle\Action;
 
 use Symfony\Component\Serializer\Annotation\Groups;
-use AppBundle\Entity\APIReference;
+use AppBundle\Entity\ApiDiscovery;
 use Doctrine\Common\Persistence\ManagerRegistry;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Symfony\Component\Routing\Annotation\Route;

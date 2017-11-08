@@ -1,8 +1,9 @@
 # Learn more about services, parameters and containers at
 # http://symfony.com/doc/current/book/service_container.html
 parameters:
-    api_key: segamw
-#    parameter_name: value
+    api_key: testapikey
+    sparql_readonly: http://0.0.0.0:8900/thesis
+    sparql_testing: http://0.0.0.0:8900/testing
 
 services:
 
@@ -21,24 +22,16 @@ services:
         arguments: [ { description: 'ipartial', name: 'ipartial', url: 'exact', applicationCategory: 'ipartial', applicationSubCategory: 'ipartial', isAccessibleForFree: 'exact', aggregateRating: 'exact' } ]
         tags:      [ { name: 'api_platform.filter', id: 'soft_apps.search' } ]
 
-    api_ref_action:
-        class: 'AppBundle\Action\ApiRefAction'
-        arguments: ["@request_stack", "%api_key%"]
+    # soft_test.collection_data_provider:
+    #     class: 'AppBundle\DataProvider\SoftwareApplicationTestingDataProvider'
+    #     arguments: ["@request_stack", "@doctrine"]
+    #     tags:
+    #         -  { name: 'api_platform.collection_data_provider', priority: 1 }
 
-    soft_apps_upload_action:
-        class: 'AppBundle\Action\SoftwareApplicationUploadAction'
-        arguments: ["@request_stack", "@doctrine"]
-        # tags:
-        #     -  { name: 'api_platform.collection_data_provider', priority: 1 }
+    # api_discovery_action:
+    #     class: 'AppBundle\Action\ApiDiscoveryAction'
+    #     arguments: ["@request_stack", sparqlTesting: 'sparql_testing']
 
-    # geo_coordinates.custom_geo_filter:
-    #     class: 'AppBundle\Filter\CustomGeoFilter'
-    #     tags:  [ { name: 'api_platform.filter', id: 'geo_coordinates.geo' } ]
-
-#    offer.order_filter:
-#        parent:    "api_platform.doctrine.orm.order_filter"
-#        arguments: [ { "price": "ASC" } ]
-
-# estate.doctrine_file_listener:
-#         class: estateBundle\EventListener\ImageUploadListener
-#         arguments: ['%argument_gkountas%', '%argument_mitsos%']
+    # soft_apps_upload_action:
+    #     class: 'AppBundle\Action\SoftwareApplicationUploadAction'
+    #     arguments: ["@request_stack", "@doctrine", ['allowed_property', {'text': ['safe_property']}]]

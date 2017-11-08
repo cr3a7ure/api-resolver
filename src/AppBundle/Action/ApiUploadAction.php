@@ -5,7 +5,7 @@
 namespace AppBundle\Action;
 
 use Symfony\Component\Serializer\Annotation\Groups;
-use AppBundle\Entity\ApiRef;
+use AppBundle\Entity\ApiDiscovery;
 use Doctrine\Common\Persistence\ManagerRegistry;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Symfony\Component\Routing\Annotation\Route;
@@ -278,12 +278,12 @@ class ApiUploadAction
       // GRAPH upload
       $graphUri =  $temp[1];//'http://www.example.com/testgraph';
       $graphClasses = $this->retrieveClass($graph);
-      if ($this->graphExists($graphUri,'http://localhost:8090/test1/query')) {
-        $this->dropGraph($graphUri,'http://localhost:8090/test1/update');
+      if ($this->graphExists($graphUri,'http://localhost:8090/testing/query')) {
+        $this->dropGraph($graphUri,'http://localhost:8090/testing/update');
       }
       dump($graphClasses);
       dump($graph->typesAsResources());
-      $sparqlEndpoint = 'http://localhost:8090/test1/update';
+      $sparqlEndpoint = 'http://localhost:8090/testing/update';
       $sparqlClient = new \EasyRdf_Sparql_Client($sparqlEndpoint);
       $sparqlClient->insert($graph,$graphUri);
       dump($sparqlClient);

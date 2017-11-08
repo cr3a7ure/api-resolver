@@ -7,10 +7,10 @@ app:
     type:     'annotation'
 
 # douleue, kaiden afhne..
-# api_special:
-#     path: '/api_post'
-#     methods:  ['POST']
-#     defaults:
-#         _controller: 'AppBundle:Api:special'
-#         _api_resource_class: 'AppBundle\Entity\ApiRef'
-#         _api_item_operation_name: 'special'
+api_special:
+    path: '/api_test/upload'
+    methods:  ['PUT']
+    defaults:
+        _controller: 'AppBundle:SoftwareApplicationTesting:test_upload_graph'
+        _api_resource_class: 'AppBundle\Entity\SoftwareApplicationTesting'
+        _api_collection_operation_name: 'test_upload_graph'

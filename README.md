@@ -1,4 +1,37 @@
-The API Platform Framework
+
+API Resolver
+=============
+API Resolver is an instance of API Platform framework.
+It serves as an inbetween node in order to semantically match API providers and API clients.
+It requires the Apache Jena/Fuseki for it's triplestore.
+It's role is to save the main JSON-LD graph from other API-Platform servers and match those with the requested APIs from the clients.
+
+Apache Jena/Fuseki Setup
+-------------------------
+
+1. Download the binary [Apache Jena/Fuseki](http://jena.apache.org/download/index.cgi)
+2. Start Jena `./fuseki-server --port 8090` and create a new dataset.
+3. Navigate to $FUSEKI_BASE/run
+4. shiro.ini is used to configure Fuseki and select desired access rights [doc](http://jena.apache.org/documentation/fuseki2/fuseki-security.html).
+5. Navigate to $FUSEKI_BASE/run/configuration/$DATASET_NAME, and allow default graph to be the union of every contained graph as below:
+````
+:tdb_dataset_readwrite
+        a             tdb:DatasetTDB ;
+        tdb:unionDefaultGraph true ;
+        tdb:location  "/home/mits/schydra/jena/apache-jena-fuseki-3.4.0/run/databases/thesis" .
+````
+
+API-Platform instance Setup
+-------------------
+
+Get the API-Resolver server `git clone https://gitlab.com/cr3a7ure/api-resolver.git`.
+Install dependancies, `cd api-resolver` `php composer.phar update`.
+Fill in the specified parameters a database is required even though it could be empty.
+Start locally the API-Resolver `php bin/console server:start 0.0.0.0:8091`.
+
+
+
+Based on: The API Platform Framework
 ==========================
 
 [![Join the chat at https://gitter.im/api-platform/api-platform](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/api-platform/api-platform?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)

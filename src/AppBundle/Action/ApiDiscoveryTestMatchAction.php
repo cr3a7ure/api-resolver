@@ -1,6 +1,6 @@
 <?php
 
-// src/AppBundle/Action/ApiDeleteAction.php
+// src/AppBundle/Action/ApiDiscoveryTestMatchAction.php
 
 namespace AppBundle\Action;
 
@@ -25,19 +25,28 @@ use ApiPlatform\Core\EventListener\EventPriorities;
 use Symfony\Component\HttpKernel\Event\GetResponseForControllerResultEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 
-class ApiDeleteAction
+class ApiDiscoveryTestMatchAction
 {
 
     protected $requestStack;
+    private $sparqlTesting;
 
-    public function __construct(RequestStack $requestStack)
+    public function __construct(RequestStack $requestStack, string $sparqlTesting = 'test')
     {
         $this->requestStack = $requestStack;
+        $this->sparqlTesting = $sparqlTesting;
+        // dump($this->container->getParameter('sparql_testing'));
+        dump($sparqlTesting);
+        dump($this->sparqlTesting);
     }
 
     protected function getRequest()
     {
         return $this->requestStack->getCurrentRequest();
+    }
+    protected function getApikey()
+    {
+        return $this->sparqlTesting;
     }
 
     protected function validateData(string $data)
@@ -58,7 +67,7 @@ class ApiDeleteAction
       $nodes = $graph->resources();
       $classes = array();
       foreach( $nodes as $value ) {
-        if (!($value->isBnode())) {
+        if (!($value->isBnode())&&($value->getUri()!='http://schema.org/searchAction')) {
           $classes[$value->getUri()] = $value;
         } else {
           //We have a bnode Class?!
@@ -206,43 +215,84 @@ class ApiDeleteAction
       return $nestedProperties; //rmeove rdf:type property
     }
 
-    protected function graphExists(string $graphURI,string $sparqlEndpoint) {
-      $sparqlClient = new \EasyRdf_Sparql_Client($sparqlEndpoint);
-        $query = 'ASK WHERE { GRAPH <'.$graphURI.'> { ?s ?p ?o } }';
-        $result = $sparqlClient->query($query);
-        dump('Graph exists?: '.$result->isTrue());
-        return $result->isTrue();
-    }
-
-    protected function dropGraph(string $graphURI,string $sparqlEndpoint) {
-      $sparqlClient = new \EasyRdf_Sparql_Client($sparqlEndpoint);
-        $query = 'DROP GRAPH <'.$graphURI.'>';
-        $result = $sparqlClient->update($query);
-        dump('Graph deleted?: '.$result->isSuccessful());
-        return $result->isSuccessful();
-    }
-
-    protected function parseGraph(string $stingGraph)
+    protected function sparqlClassQuery(\EasyRdf_Graph $graph,\EasyRdf_Resource $class,string $className = '')
     {
-      $baseString = '@base';
-      $context = '@context';
-      $id = '@id';
-      $jsonGraph = json_decode($stingGraph);
-      $uploadedGraph = $jsonGraph->articleBody;
-      dump($uploadedGraph);
-      $baseUri = $uploadedGraph->$context->$baseString . $uploadedGraph->$id;
-      dump($baseUri);
-      $classes = "hydra:supportedClass";
-      foreach ($uploadedGraph->$classes as $key => $value) {
-        $properties = "hydra:supportedProperty";
-        $description = 'hydra:description';
-        foreach ($value->$properties as $key => $value) {
-          if (array_key_exists($description, $value)) {
-            $value->$description = json_decode($value->$description);
-          }
+      $className = $class->getUri();
+      dump("Creating search query for class ". $class);
+      $classProperties = $this->retrieveProperty($graph,$class);
+      $propertyOptions = '';
+      $propURIList = '';
+      $range = '';
+      $i = 1;
+      // dump($kapa); ?class hydra:supportedProperty ?props .
+      foreach( $classProperties as $propertyType => $options ) {
+        if ($propertyType == 'schema:potentialAction') {
+          dump("LOL");
+          dump($classProperties);
+          dump($options);
+          //different actions for potentialActions
+          foreach ($options as $optionName => $optionsArray) {
+            // dump($optionsArray);
+            // foreach ($optionsArray as $predicate => $value) {
+              // $propertyOptions .= '?action'.$i.'_IRI' . ' '. $predicate. ' ' . $value . " .\n          ";
+              $propertyOptions .= '?action'.$i.'_IRI' . ' schema:object ' . '?class' . " .\n          ";
+              //We are checking this exact class
+              $propertyOptions .= '?action'.$i.'_IRI' . ' schema:query ' . '?query' . " .\n          ";
+              $propertyOptions .= '?query' . ' rdf:type ' . '?queryClass' . " .\n          ";
+              $propertyOptions .= '?queryClass' . ' rdf:type ' . $optionsArray['schema:query'] . " .\n          ";
+              //query is not @type=@id so we need to specify it's intermidiate class
+              $propertyOptions .= '?action'.$i.'_IRI' . ' schema:result ' . '?result' . " .\n          ";
+              $propertyOptions .= '?result' . ' rdf:type ' . '<'. $optionsArray['schema:result'] . '>'. " .\n          ";
+              $propertyOptions .= '?action'.$i.'_IRI' . ' schema:target ' . '?target' . " .\n          ";
+            // }
+          } //add property Options
+          // $propertyOptions .= '?action ' .
+        } else {
+          $propURIList .= ' ?prop'.$i.'_IRI';
+          $propertyOptions .= '?class' . ' hydra:supportedProperty ' . '?prop'.$i . " .\n          ";
+          $propertyOptions .= '?prop'.$i . ' hydra:property ' . '?prop'.$i.'_IRI' . " .\n          ";
+          $propertyOptions .= '?prop'.$i.'_IRI' . ' rdf:type ' . $propertyType . " .\n          ";
+          foreach ($options as $optionName => $optionsArray) {
+            // dump($optionsArray);
+            foreach ($optionsArray as $predicate => $value) {
+              $propertyOptions .= '?prop'.$i.'_IRI' . ' '. $predicate. ' ' . $value . " .\n          ";
+            }
+          } //add property Options
         }
+        $i++;
       }
-      return [$uploadedGraph,$baseUri];
+      $prefix = $this->getDefaultPrefix();
+      // FROM <http://localhost:8090/test1/data/apiv17>
+      $query = $prefix . "\n".
+      'DESCRIBE ?class ?target'.$propURIList. " \n          ".
+      'WHERE  {
+        ?class rdf:type ' .'<'. $className .'>.
+        ?server hydra:supportedClass ?class.
+        ?server hydra:entrypoint ?entrypoint .
+        ' . $propertyOptions . '}';
+      return $query;
+      // dump($query);
+    }
+
+    protected function testHydra() {
+        $prefix = $this->getDefaultPrefix();
+        $query = $prefix .
+        'DESCRIBE *
+        FROM <http://localhost:8090/testing/data/apiv17>
+        WHERE  { <http://localhost:8091/docs.jsonld> ?p ?o }';
+        return $query;
+    }
+
+    protected function getBindings(string $class)
+    {
+            // FROM <http://localhost:8090/test1/data/test1>
+        $query = 'prefix hydra: <http://www.w3.org/ns/hydra/core#>
+            DESCRIBE ?subject
+            WHERE {
+              ?subject hydra:supportedProperty ?object
+            }
+            LIMIT 10';
+        return $data;
     }
 
     protected function searchAction(\EasyRdf_Graph $graph,array $class)
@@ -256,38 +306,74 @@ class ApiDeleteAction
     }
 /**
  * @Route(
- *     name="api_delete_action",
- *     path="/api_ref/delete",
- *     defaults={"_api_resource_class"=ApiRef::class, "_api_collection_operation_name"="delete"}
+ *     name="api_test_match_action",
+ *     path="/api_test/match",
+ *     defaults={"_api_resource_class"=ApiDiscovery::class, "_api_collection_operation_name"="match_test"}
  * )
  * @Method("PUT")
  */
     // public function __invoke($data)
     public function __invoke($data)
     {
-      $uploadedGraph = $this->getRequest()->getContent();
-      dump($this->getRequest());
-      // dump($this->getRequest()->getClientIp());
-      $temp = $this->parseGraph($uploadedGraph);
-      $expandedGraph = JsonLD::expand($temp[0]);
+      $request = $this->getRequest()->getContent();
+      // $test = $container->getParameter('api_key');
+      $test = $this->getApikey();
+      dump($data);
+      dump($test);
 
+      $req = $request;
       $graph = new \EasyRdf_Graph();
-      $graph->parse($expandedGraph,'jsonld',null);
+      $expanded = JsonLD::expand($req);
+      $graph->parse($expanded,'jsonld',null);
       dump($graph);
 
-      // GRAPH upload
-      $graphUri =  $temp[1];//'http://www.example.com/testgraph';
+      // GRAPH retrieve
+      $queries = array();
       $graphClasses = $this->retrieveClass($graph);
-      if ($this->graphExists($graphUri,'http://localhost:8090/testing/query')) {
-        $this->dropGraph($graphUri,'http://localhost:8090/testing/update');
-      }
-      dump($graphClasses);
-      dump($graph->typesAsResources());
-      $sparqlEndpoint = 'http://localhost:8090/testing/update';
+      $selectQueryArray = array();
+      $responseGraph = new \EasyRdf_Graph();
+      $stichResponse = '';
+      $sparqlEndpoint = 'http://localhost:8090/testing/query';
       $sparqlClient = new \EasyRdf_Sparql_Client($sparqlEndpoint);
-      $sparqlClient->insert($graph,$graphUri);
-      dump($sparqlClient);
+      foreach ($graphClasses as $classUri => $classResource) {
+        $queries[$classUri] = $this->sparqlClassQuery($graph,$classResource);
+        $selectQueryArray[$classUri] = $sparqlClient->query($queries[$classUri]);
+        // $responseGraph = $sparqlClient->query($queries[$classUri]);
+        // dump($responseGraph->serialise('jsonld'));
+      }
 
-      return new Response();
+      // dump($stichResponse);
+      foreach ($selectQueryArray as $classUri => $value) {
+        $semigraph = $value->serialise('jsonld');
+        $responseGraph->parse($semigraph,'jsonld',null);
+      }
+      foreach ($queries as $classUri => $queryString) {
+        dump($classUri . "\n" . $queryString);
+        dump($selectQueryArray[$classUri]);
+      }
+      $stichResponse = $responseGraph->serialise('jsonld');
+      dump($responseGraph);
+      //Serialize GRAPH
+      $graphOut = $graph->serialise('jsonld');
+      $lal = $this->validateData($graphOut);
+      dump($graphOut);
+
+      // $sparql = new \EasyRdf_Sparql_Client('http://localhost:8090/thesis/query');
+
+      // $url = 'http://localhost:8081/docs.jsonld';
+      // $headers = array("Content-Type" => "application/ld+json",
+      //                 "Accept" => "application/ld+json");
+      // $query = '';
+      // $response = Unirest\Request::get($url,$headers,$query);
+      // dump($response);
+      // $expanded = JsonLD::expand($temp);
+      // $temp2 = new \EasyRdf_Graph();
+      // $temp2->parse($response->body,'jsonld',null);
+      // throw new \Exception('DUMPSTERRRRR!');
+      // return new Response($temp2->serialise('jsonld'));
+      return new Response($stichResponse);
+
+       // API Platform will automatically validate, persist (if you use Doctrine) and serialize an entity
+                      // for you. If you prefer to do it yourself, return an instance of Symfony\Component\HttpFoundation\Response
     }
 }

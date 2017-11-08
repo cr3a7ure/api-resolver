@@ -4,6 +4,7 @@ namespace AppBundle\Entity;
 
 use ApiPlatform\Core\Annotation\ApiProperty;
 use ApiPlatform\Core\Annotation\ApiResource;
+use Symfony\Component\Serializer\Annotation\Groups;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -17,7 +18,14 @@ use Symfony\Component\Validator\Constraints as Assert;
  * @ORM\Entity
  * @ApiResource(iri="http://schema.org/SoftwareApplication",
  *             type="http://schema.org/SoftwareApplication",
- *             attributes={"filters"={"soft_apps.search"}}
+ *             collectionOperations={
+ *             "test_upload_graph"={"route_name"="api_test_upload_action"}},
+ *             attributes={
+ *                 "filters"={"soft_apps.search"},
+ *                 "denormalization_context"={
+ *                     "groups"={"write_graph"},
+ *                     "api_allow_update"={true}}
+ *              }
  *         )
  */
 class SoftwareApplicationTesting
@@ -134,7 +142,8 @@ class SoftwareApplicationTesting
      * @var string The textual content of this CreativeWork
      *
      * @ORM\Column(nullable=true)
-     * @Assert\Type(type="string")
+     * @Assert\Type(type="json_array")
+     * @Groups({"write"})
      * @ApiProperty(iri="http://schema.org/text")
      */
     private $text;
@@ -144,6 +153,7 @@ class SoftwareApplicationTesting
      *
      * @ORM\Column(type="boolean", nullable=true)
      * @Assert\Type(type="boolean")
+     * @Groups({"write"})
      * @ApiProperty(iri="http://schema.org/isAccessibleForFree")
      */
     private $isAccessibleForFree;
@@ -153,6 +163,7 @@ class SoftwareApplicationTesting
      *
      * @ORM\Column(nullable=true)
      * @Assert\Type(type="string")
+     * @Groups({"write"})
      * @ApiProperty(iri="http://schema.org/provider")
      */
     private $provider;
@@ -162,6 +173,7 @@ class SoftwareApplicationTesting
      *
      * @ORM\Column(type="date", nullable=true)
      * @Assert\Date
+     * @Groups({"write"})
      * @ApiProperty(iri="http://schema.org/datePublished")
      */
     private $datePublished;
@@ -180,6 +192,7 @@ class SoftwareApplicationTesting
      *
      * @ORM\Column(nullable=true)
      * @Assert\Type(type="string")
+     * @Groups({"write"})
      * @ApiProperty(iri="http://schema.org/aggregateRating")
      */
     private $aggregateRating;

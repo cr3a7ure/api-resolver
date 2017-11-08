@@ -1,20 +1,22 @@
 <?php
 
-// src/AppBundle/Action/ApiDeleteAction.php
+// src/AppBundle/Action/SoftwareApplicationTestingDataProvider.php
 
 namespace AppBundle\Action;
 
-use Symfony\Component\Serializer\Annotation\Groups;
-use AppBundle\Entity\ApiDiscovery;
+use AppBundle\Entity\SoftwareApplicationTesting;
 use Doctrine\Common\Persistence\ManagerRegistry;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Symfony\Component\Routing\Annotation\Route;
 use Unirest;
 use Easyrdf;
-use ML\JsonLD\JsonLD as JsonLD;
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use ApiPlatform\Core\DataProvider\CollectionDataProviderInterface;
+use ApiPlatform\Core\Exception\ResourceClassNotSupportedException;
+use ML\JsonLD\JsonLD as JsonLD;
 
 use Symfony\Component\Serializer\Serializer;
 use Symfony\Component\Serializer\Encoder\XmlEncoder;
@@ -25,14 +27,16 @@ use ApiPlatform\Core\EventListener\EventPriorities;
 use Symfony\Component\HttpKernel\Event\GetResponseForControllerResultEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 
-class ApiDeleteAction
+class SoftwareApplicationTestingDataProvider implements CollectionDataProviderInterface
 {
 
     protected $requestStack;
+    protected $doctrine;
 
-    public function __construct(RequestStack $requestStack)
+    public function __construct(RequestStack $requestStack,ManagerRegistry $doctrine)
     {
         $this->requestStack = $requestStack;
+        $this->doctrine = $doctrine;
     }
 
     protected function getRequest()
@@ -256,13 +260,12 @@ class ApiDeleteAction
     }
 /**
  * @Route(
- *     name="api_delete_action",
- *     path="/api_ref/delete",
- *     defaults={"_api_resource_class"=ApiRef::class, "_api_collection_operation_name"="delete"}
+ *     name="api_test_upload_action",
+ *     path="/api_test/upload",
+ *     defaults={"_api_resource_class"=SoftwareApplicationTesting::class, "_api_collection_operation_name"="test_upload_graph"}
  * )
- * @Method("PUT")
+ * @Method("POST")
  */
-    // public function __invoke($data)
     public function __invoke($data)
     {
       $uploadedGraph = $this->getRequest()->getContent();
