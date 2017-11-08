@@ -1,16 +1,13 @@
 # Learn more about services, parameters and containers at
 # http://symfony.com/doc/current/book/service_container.html
 parameters:
-    api_key: testapikey
-    sparql_readonly: http://0.0.0.0:8900/thesis
-    sparql_testing: http://0.0.0.0:8900/testing
+    sparql_host: http://0.0.0.0:8900/
+    readonly_dataset: thesis
+    test_dataset: testing
+    # sparql_readonly: http://0.0.0.0:8900/thesis
+    # sparql_testing: http://0.0.0.0:8900/testing
 
 services:
-
-# de xreiasthke
-    # action_api_ref_action:
-    #     class:     AppBundle\Action\ApiRefAction
-    #     arguments: ["@request_stack"]
 
     classes.vocs_search_filter:
         parent:    'api_platform.doctrine.orm.search_filter'
@@ -22,16 +19,12 @@ services:
         arguments: [ { description: 'ipartial', name: 'ipartial', url: 'exact', applicationCategory: 'ipartial', applicationSubCategory: 'ipartial', isAccessibleForFree: 'exact', aggregateRating: 'exact' } ]
         tags:      [ { name: 'api_platform.filter', id: 'soft_apps.search' } ]
 
-    # soft_test.collection_data_provider:
-    #     class: 'AppBundle\DataProvider\SoftwareApplicationTestingDataProvider'
-    #     arguments: ["@request_stack", "@doctrine"]
-    #     tags:
-    #         -  { name: 'api_platform.collection_data_provider', priority: 1 }
+    AppBundle\Action\ApiDiscoveryTestMatchAction:
+        autowire: true
+        public: true
+        arguments: ["@request_stack", "%sparql_host%", "%test_dataset%"]
 
-    # api_discovery_action:
-    #     class: 'AppBundle\Action\ApiDiscoveryAction'
-    #     arguments: ["@request_stack", sparqlTesting: 'sparql_testing']
-
-    # soft_apps_upload_action:
-    #     class: 'AppBundle\Action\SoftwareApplicationUploadAction'
-    #     arguments: ["@request_stack", "@doctrine", ['allowed_property', {'text': ['safe_property']}]]
+    AppBundle\Action\ApiDiscoveryMatchAction:
+        autowire: true
+        public: true
+        arguments: ["@request_stack", "%sparql_host%", "%readonly_dataset%"]

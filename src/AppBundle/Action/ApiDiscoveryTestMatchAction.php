@@ -29,15 +29,17 @@ class ApiDiscoveryTestMatchAction
 {
 
     protected $requestStack;
-    private $sparqlTesting;
+    protected $sparqlHost;
+    protected $sparqlDataset;
+    protected $sparqlURL;
 
-    public function __construct(RequestStack $requestStack, string $sparqlTesting = 'test')
+    public function __construct(RequestStack $requestStack, $sparqlHost, $sparqlDataset)
     {
         $this->requestStack = $requestStack;
-        $this->sparqlTesting = $sparqlTesting;
-        // dump($this->container->getParameter('sparql_testing'));
-        dump($sparqlTesting);
-        dump($this->sparqlTesting);
+        $this->sparqlHost = $sparqlHost;
+        $this->sparqlDataset = $sparqlDataset;
+        $this->sparqlURL = $sparqlHost . $sparqlDataset;
+        dump($this->sparqlURL);
     }
 
     protected function getRequest()
@@ -46,7 +48,7 @@ class ApiDiscoveryTestMatchAction
     }
     protected function getApikey()
     {
-        return $this->sparqlTesting;
+        return $this->sparqlHost;
     }
 
     protected function validateData(string $data)
@@ -312,7 +314,6 @@ class ApiDiscoveryTestMatchAction
  * )
  * @Method("PUT")
  */
-    // public function __invoke($data)
     public function __invoke($data)
     {
       $request = $this->getRequest()->getContent();
@@ -333,6 +334,7 @@ class ApiDiscoveryTestMatchAction
       $selectQueryArray = array();
       $responseGraph = new \EasyRdf_Graph();
       $stichResponse = '';
+      $sparqlEndpoint = $this->sparqlURL . '/query';
       $sparqlEndpoint = 'http://localhost:8090/testing/query';
       $sparqlClient = new \EasyRdf_Sparql_Client($sparqlEndpoint);
       foreach ($graphClasses as $classUri => $classResource) {

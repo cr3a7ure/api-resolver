@@ -2,11 +2,17 @@
 API Resolver
 =============
 API Resolver is an instance of API Platform framework.
-It serves as an inbetween node in order to semantically match API providers and API clients.
+It serves as an inbetween node in order to semantically match RESTFul API providers and clients.
 It requires the Apache Jena/Fuseki for it's triplestore.
 It's role is to save the main JSON-LD graph from other API-Platform servers and match those with the requested APIs from the clients.
 
 [![Diagram](http://vps454845.ovh.net/schydra/images/hydraEcosystem.png)](http://vps454845.ovh.net/schydra/intro.html)
+
+Currently it uses the `@type` term to match the type of desired data and the [schema.org/Actions](http://schema.org/Action) to assign semantic meaning to HTTP methods.
+
+API providers should consider the API-Platform [documentation](https://api-platform.com/docs/) on building their service.
+
+While API consumers that would like to use the API-Resolver should have a look at schydraClient.
 
 
 Apache Jena/Fuseki Setup
@@ -43,10 +49,7 @@ API-Platform instance Setup
     `php bin/console server:start 0.0.0.0:8091`.
 
 
-Working with API-Resolver
---------------------------
-
-Init
+Init API-Resolver
 ------
 API-Resolver points to `http://localhost:8090` on default for its triplestore and it's dataset name is `thesis`.
 In order to change those, currently you have to manually saerch for it inside the `/src/AppBundle/Action`.
@@ -57,6 +60,12 @@ Using API-Resolver
 [![Diagram](http://vps454845.ovh.net/schydra/images/schydraActivityDiagram.png)](http://vps454845.ovh.net/schydra/intro.html)
 
 As seen above, API-Resolver's main job is to create SPARQL queries and answer to clients' requests.
+
+It helps pre/post-process the data. Since working with SPARQL queries is not as easy.
+
+The client should make an HTTP PUT at `API-Resolver_BASEURL/api/match` using as data a JSON-LD description of the requested APIs.
+
+The API-Resolver will return another JSON-LD graph describing each class with it's actions.
 
 
 

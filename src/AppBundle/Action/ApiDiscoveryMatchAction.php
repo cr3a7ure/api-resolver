@@ -29,15 +29,17 @@ class ApiDiscoveryMatchAction
 {
 
     protected $requestStack;
-    private $sparqlTesting;
+    protected $sparqlHost;
+    protected $sparqlDataset;
+    protected $sparqlURL;
 
-    public function __construct(RequestStack $requestStack, string $sparqlTesting = 'test')
+    public function __construct(RequestStack $requestStack, $sparqlHost, $sparqlDataset)
     {
         $this->requestStack = $requestStack;
-        $this->sparqlTesting = $sparqlTesting;
-        // dump($this->container->getParameter('sparql_testing'));
-        dump($sparqlTesting);
-        dump($this->sparqlTesting);
+        $this->sparqlHost = $sparqlHost;
+        $this->sparqlDataset = $sparqlDataset;
+        $this->sparqlURL = $sparqlHost . $sparqlDataset;
+        dump($this->sparqlURL);
     }
 
     protected function getRequest()
@@ -286,7 +288,7 @@ class ApiDiscoveryMatchAction
 /**
  * @Route(
  *     name="api_match_action",
- *     path="/api_test/match",
+ *     path="/api/match",
  *     defaults={"_api_resource_class"=ApiDiscovery::class, "_api_collection_operation_name"="match"}
  * )
  * @Method("PUT")
@@ -307,7 +309,7 @@ class ApiDiscoveryMatchAction
       $selectQueryArray = array();
       $responseGraph = new \EasyRdf_Graph();
       $stichResponse = '';
-      $sparqlEndpoint = 'http://localhost:8090/thesis/query';
+      $sparqlEndpoint = $this->sparqlURL . '/query';
       $sparqlClient = new \EasyRdf_Sparql_Client($sparqlEndpoint);
       foreach ($graphClasses as $classUri => $classResource) {
         $queries[$classUri] = $this->sparqlClassQuery($graph,$classResource);
