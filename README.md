@@ -27,16 +27,17 @@ Apache Jena/Fuseki Setup
 API-Platform instance Setup
 -------------------
 
-Get the API-Resolver server `git clone https://gitlab.com/cr3a7ure/api-resolver.git`.
+1. Get the API-Resolver server
+    `git clone https://gitlab.com/cr3a7ure/api-resolver.git`.
 
-Install dependancies:
-`cd api-resolver`
-`php composer.phar update`
+2. Install dependancies:
+    `cd api-resolver`
+    `php composer.phar update`
 
-Fill in the specified parameters a database is required even though it could be empty
-`php bin/console doctrine:database:create`.
-
-Start locally the API-Resolver `php bin/console server:start 0.0.0.0:8091`.
+3. Fill in the specified parameters a database is required even though it could be empty
+    `php bin/console doctrine:database:create`.
+4. Start locally the API-Resolver
+    `php bin/console server:start 0.0.0.0:8091`.
 
 
 
