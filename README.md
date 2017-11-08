@@ -45,9 +45,9 @@ API-Platform instance Setup
     A database is required even though it could be empty.
     The SPARQL endpoint is essential.
     The parameters:
-    - *sparql_host*: Base URL of Apache Jena/Fuseki, mind the slash `/`.
-    - *readonly_dataset*: Readonly dataset for matching. You can upload graphs through Jena only.
-    - *test_dataset*: Testing dataset for uploading graphs through API-Resolver.
+    - `sparql_host`: Base URL of Apache Jena/Fuseki, mind the slash `/`.
+    - `readonly_dataset`: Readonly dataset for matching. You can upload graphs through Jena only.
+    - `test_dataset`: Testing dataset for uploading graphs through API-Resolver.
 
     `php bin/console doctrine:database:create`.
 4. Start locally the API-Resolver
