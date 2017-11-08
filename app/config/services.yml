@@ -1,11 +1,6 @@
 # Learn more about services, parameters and containers at
 # http://symfony.com/doc/current/book/service_container.html
 parameters:
-    sparql_host: http://0.0.0.0:8900/
-    readonly_dataset: thesis
-    test_dataset: testing
-    # sparql_readonly: http://0.0.0.0:8900/thesis
-    # sparql_testing: http://0.0.0.0:8900/testing
 
 services:
 

@@ -19,3 +19,6 @@ parameters:
     secret:            ThisTokenIsNotSoSecretChangeIt
 
     cors_allow_origin: http://localhost
+    sparql_host: http://0.0.0.0:8900/
+    readonly_dataset: thesis
+    test_dataset: testing

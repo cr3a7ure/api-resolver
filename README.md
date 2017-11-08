@@ -41,7 +41,13 @@ API-Platform instance Setup
     `cd api-resolver`
 
     `php composer.phar update`
-3. Fill in the specified parameters a database is required even though it could be empty
+3. Fill in the specified parameters or edit `/app/config/parameters.yml`.
+    A database is required even though it could be empty.
+    The SPARQL endpoint is essential.
+    The parameters:
+    - *sparql_host*: Base URL of Apache Jena/Fuseki, mind the slash `/`.
+    - *readonly_dataset*: Readonly dataset for matching. You can upload graphs through Jena only.
+    - *test_dataset*: Testing dataset for uploading graphs through API-Resolver.
 
     `php bin/console doctrine:database:create`.
 4. Start locally the API-Resolver
