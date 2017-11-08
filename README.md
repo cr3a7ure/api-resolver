@@ -28,8 +28,14 @@ API-Platform instance Setup
 -------------------
 
 Get the API-Resolver server `git clone https://gitlab.com/cr3a7ure/api-resolver.git`.
-Install dependancies, `cd api-resolver` `php composer.phar update`.
-Fill in the specified parameters a database is required even though it could be empty.
+
+Install dependancies:
+`cd api-resolver`
+`php composer.phar update`
+
+Fill in the specified parameters a database is required even though it could be empty
+`php bin/console doctrine:database:create`.
+
 Start locally the API-Resolver `php bin/console server:start 0.0.0.0:8091`.
 
 
