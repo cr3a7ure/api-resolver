@@ -43,6 +43,23 @@ API-Platform instance Setup
     `php bin/console server:start 0.0.0.0:8091`.
 
 
+Working with API-Resolver
+--------------------------
+
+Init
+------
+API-Resolver points to `http://localhost:8090` on default for its triplestore and it's dataset name is `thesis`.
+In order to change those, currently you have to manually saerch for it inside the `/src/AppBundle/Action`.
+You have to manually load the main graph of your API-Platform server in your dataset, or use the testing API.
+
+Using API-Resolver
+-------------------
+[![Diagram](http://vps454845.ovh.net/schydra/images/schydraActivityDiagram.png)](http://vps454845.ovh.net/schydra/intro.html)
+
+As seen above, API-Resolver's main job is to create SPARQL queries and answer to clients' requests.
+
+
+
 
 Based on: The API Platform Framework
 ==========================
