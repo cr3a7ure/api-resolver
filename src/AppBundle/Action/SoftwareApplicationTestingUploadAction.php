@@ -6,6 +6,8 @@ namespace AppBundle\Action;
 
 use Symfony\Component\Serializer\Annotation\Groups;
 use AppBundle\Entity\SoftwareApplicationTesting;
+use AppBundle\Entity\StatsVoc;
+use AppBundle\Entity\StatsClass;
 use Doctrine\Common\Persistence\ManagerRegistry;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Symfony\Component\Routing\Annotation\Route;
@@ -30,11 +32,17 @@ class SoftwareApplicationTestingUploadAction
 
     protected $requestStack;
     protected $doctrine;
+    protected $sparqlHost;
+    protected $sparqlDataset;
+    protected $sparqlURL;
 
-    public function __construct(RequestStack $requestStack,ManagerRegistry $doctrine)
+    public function __construct(RequestStack $requestStack,ManagerRegistry $doctrine, $sparqlHost, $sparqlDataset)
     {
         $this->requestStack = $requestStack;
         $this->doctrine = $doctrine;
+        $this->sparqlHost = $sparqlHost;
+        $this->sparqlDataset = $sparqlDataset;
+        $this->sparqlURL = $sparqlHost . $sparqlDataset;
     }
 
     protected function getRequest()
@@ -94,123 +102,14 @@ class SoftwareApplicationTestingUploadAction
       $prefix = '';
       return $prefix;
     }
-    // protected function sparqlActionQuery(\EasyRdf_Resource $actionProperty, string $options = '')
-    // {
-    //   $properties = $this->retrieveAction($actionProperty);
-    //   return $
-    // }
-/**
- * [retrievePropertyProperties description]
- * @param  \EasyRdf_Resource $property [schema:potentialAction]
- * @param  string            $class    [description]
- * @param  \EasyRdf_Graph    $graph    [description]
- * @return [type]                      [description] */
-  /*
-  "rdf:type" => "http://schema.org/searchAction"
-  "schema:object" => "http://schema.org/Offer"
-  "schema:query" => "schema:Flight"
-  "schema:result" => "http://schema.org/Offer"
-   */
-    protected function retrieveAction(\EasyRdf_Resource $actionProperty, string $options = '')
-    {
-      $actionProps = $actionProperty->properties();
-      foreach ($actionProps as $i => $actionPredicate) {
-        $actionValues = $actionProperty->allResources($actionPredicate);
-        foreach ($actionValues as $k => $value) {
-          if ($value->isBNode()) {
-            $nestedProperties[$actionPredicate] = $value->type();
-          } else {
-            $nestedProperties[$actionPredicate] = $value->getUri();
-          }
-        }
-        // dump($actionPredicate);
-        // dump($actionValues);
-      }
-      dump("\nRetrieved semantics for Action".$actionProperty->getUri());
-      return $nestedProperties;
-    }
-
-    protected function retrievePropertyProperties(\EasyRdf_Resource $class, string $property, \EasyRdf_Graph $graph)
-    {
-      // dump($class);
-      dump("\nProperty ".$property . "\n contains properties:");
-      $actionProps = $class->properties();
-      $containedResources = $class->allResources($property); //retrieves Resources
-      // dump($property);
-      // dump($containedResources);
-      $nestedProperties[$property] = [];
-      foreach ($containedResources as $i => $res) { //If we have contained resources!!
-        dump("\nPredicate: ".$res);
-        $rangeType = $res->types(); //Retrieve types of property
-        foreach ($rangeType as $k => $typeUri) {
-        dump("\nType - range: ".$typeUri);
-          if(preg_match("/(Action)/", $typeUri, $checkAction)==1) {
-            // $nestedProperties[$property]['rdfs:range'] = $typeUri;
-            $test = $this->retrieveAction($res);
-            dump($test);
-             $nestedProperties[$property] = $this->retrieveAction($res);
-          } else {
-            // suppose we have only other classes types
-            $nestedProperties[$property]['rdfs:range'] = $typeUri;
-          }
-
-        }
-        // dump($rangeType);
-      }
-      dump('LOL');
-      dump("\nRetrieved Contained Properties: ");
-      dump($nestedProperties);
-      return $nestedProperties;
-    }
-
-    protected function retrieveProperty(\EasyRdf_Graph $graph,\EasyRdf_Resource $class)
-    {
-      dump("\nRetrieve properties for Class ". $class->getUri());
-      $nestedProperties = array();
-      $types = $graph->allOfType($class);
-      $classArray = array();
-      $classProperties = array();
-      $selectedProperties = array();
-      $nestedProperties = array();
-      // $props = $graph->properties($q[0]->getUri());// Get al the propsUris
-      $k = 0;
-      foreach ($types as $i => $node) {
-        $classProperties = $graph->properties($node->getUri());
-        dump("\nNodes of current class type: " . count($classProperties));
-        if( (count($classProperties)==1)&&($classProperties[0]=='rdf:type') ){
-          //used as rdfs:range option as this bnode has only the type property
-        } else {
-          $classArray[$k] = $node;
-          dump("\nMain Class at bnode: " . $node);
-          $selectedProperties = $classProperties;
-          $k++;
-        }
-        $test = $node->types();
-        // dump($node);
-        // dump($classProperties);
-        // dump($classArray);
-      } //We found the main class
-      // dump($types);
-      // dump($class);
-      foreach ($selectedProperties as $i => $predicate) {
-        dump("\nResolving property: " . $predicate);
-        if($predicate!='rdf:type') {
-          //SKIP the rdf:type of this class-bnode
-          $nestedProperties[$predicate] = array();
-          $containedResources = $classArray[0]->allResources($predicate);//we use only 1
-          $nestedProperties[$predicate] = $this->retrievePropertyProperties($classArray[0],$predicate,$graph);
-          // dump($properties2);
-        }
-      }
-      dump("MANASOU");
-      dump("\nRetrieved Class Properties: ");
-      dump($nestedProperties);
-      return $nestedProperties; //rmeove rdf:type property
-    }
 
     protected function graphExists(string $graphURI,string $sparqlEndpoint) {
       $sparqlClient = new \EasyRdf_Sparql_Client($sparqlEndpoint);
         $query = 'ASK WHERE { GRAPH <'.$graphURI.'> { ?s ?p ?o } }';
+        $result = $sparqlClient->listNamedGraphs();
+        dump($result);
+        $result = $sparqlClient->countTriples('{ ?s ?p ?o }');
+        dump($result);
         $result = $sparqlClient->query($query);
         dump('Graph exists?: '.$result->isTrue());
         return $result->isTrue();
@@ -224,27 +123,102 @@ class SoftwareApplicationTestingUploadAction
         return $result->isSuccessful();
     }
 
-    protected function parseGraph(string $stingGraph)
+    protected function getVocabulary(string $URL) {
+      $urlArray = explode('/',$URL);
+      $urlArray = array_filter($urlArray);
+      array_pop($urlArray);
+      $urlString = '/'.implode('/',$urlArray);
+    }
+
+    protected function addVoc(array $vocs) {
+      $em = $this->doctrine->getRepository('AppBundle\Entity\StatsVoc');
+      $write = $this->doctrine->getManager();
+      foreach ($vocs as $key => $value) {
+        $voc = $em->findOneByUrl($value);
+        if (!$voc) {
+          $temp = new StatsVoc();
+          $temp->setUrl($value);
+          $temp->setTitle(parse_url($value, PHP_URL_HOST));
+          $write->persist($temp);
+          $write->flush();
+        }
+      }
+      // $attr = $em->findAll();
+      return true;
+    }
+    protected function addClass(array $classes) {
+      $em = $this->doctrine->getRepository('AppBundle\Entity\StatsClass');
+      $write = $this->doctrine->getManager();
+      foreach ($classes as $key => $value) {
+        $voc = $em->findOneByUrl($value);
+        if (!$voc) {
+          $temp = new StatsClass();
+          $temp->setUrl($value);
+          $temp->setTitle(substr($value, strrpos($url, '/') + 1));
+          $write->persist($temp);
+          $write->flush();
+        }
+      }
+      return true;
+    }
+
+    protected function parseGraph(string $dataRaw,SoftwareApplicationTesting $dbEntry)
     {
       $baseString = '@base';
       $context = '@context';
       $id = '@id';
-      $jsonGraph = json_decode($stingGraph);
-      $uploadedGraph = $jsonGraph->articleBody;
+      $dataJson = json_decode(($dataRaw));
+      $uploadedGraph = $dataJson->text;
+      $dbEntry->setName($dataJson->name);
+      $dbEntry->setDescription($dataJson->description);
+      $dbEntry->setUrl($dataJson->url);
+      $dbEntry->setImage($dataJson->image);
+      $dbEntry->setReleaseNotes($dataJson->releaseNotes);
+      $dbEntry->setSoftwareVersion($dataJson->softwareVersion);
+      $dbEntry->setLicence($dataJson->licence);
+      $dbEntry->setReview($dataJson->review);
+      $dbEntry->setKeywords($dataJson->keywords);
+      $dbEntry->setIsAccessibleForFree($dataJson->isAccessibleForFree);
+      $dbEntry->setProvider($dataJson->provider);
+      dump('WRA');
+      dump($dataJson->datePublished);
+      dump(\DateTime::createFromFormat(\DateTime::W3C,$dataJson->datePublished));
+      // $dbEntry->setDatePublished(\DateTime::createFromFormat('Y-m-d\TH:iP',$dataJson->datePublished));
+      $dbEntry->setDatePublished(null);
+      // $dbEntry->setDateModified(\DateTime::createFromFormat(\DateTime::W3C,$dataJson->dateModified));
+      $dbEntry->setDateModified(null);
+      $dbEntry->setAggregateRating($dataJson->aggregateRating);
       dump($uploadedGraph);
       $baseUri = $uploadedGraph->$context->$baseString . $uploadedGraph->$id;
       dump($baseUri);
       $classes = "hydra:supportedClass";
-      foreach ($uploadedGraph->$classes as $key => $value) {
+      $classArray = array();
+      $vocsArray = array();
+      foreach ($uploadedGraph->$classes as $keyCl => $value) {
+        $classTypes = "@type";
+        $hydraClass = "hydra:Class";
         $properties = "hydra:supportedProperty";
         $description = 'hydra:description';
-        foreach ($value->$properties as $key => $value) {
-          if (array_key_exists($description, $value)) {
-            $value->$description = json_decode($value->$description);
+        dump($value->$classTypes);
+        if (is_array($value->$classTypes)) {
+          foreach ($value->$classTypes as $keyType => $valueType) {
+            if ($valueType !== $hydraClass) {
+              dump($valueType);
+              array_push($classArray, $valueType);
+              $voc = parse_url($valueType, PHP_URL_SCHEME) . '://' . parse_url($valueType, PHP_URL_HOST);
+              array_push($vocsArray,$voc);
+            }
           }
         }
+        $dbEntry->setApplicationSubCategory(implode (", ", $classArray));
+        $dbEntry->setApplicationCategory(implode (", ", $vocsArray));
+
+        dump($dbEntry);
       }
-      return [$uploadedGraph,$baseUri];
+      $this->addVoc($vocsArray);
+      $this->addClass($classArray);
+
+      return [$dbEntry,$uploadedGraph,$baseUri];
     }
 
     protected function searchAction(\EasyRdf_Graph $graph,array $class)
@@ -266,29 +240,30 @@ class SoftwareApplicationTestingUploadAction
  */
     public function __invoke($data)
     {
-      $uploadedGraph = $this->getRequest()->getContent();
-      dump($this->getRequest());
-      // dump($this->getRequest()->getClientIp());
-      $temp = $this->parseGraph($uploadedGraph);
-      $expandedGraph = JsonLD::expand($temp[0]);
+      dump($data);
+      $dataRaw = $this->getRequest()->getContent();
+      $dbEntry = new SoftwareApplicationTesting();
+      $out = $this->parseGraph($dataRaw,$dbEntry);
+      $write = $this->doctrine->getManager();
+      $write->persist($out[0]);
+      $write->flush();
+
+      $expandedGraph = JsonLD::expand($out[1]);
 
       $graph = new \EasyRdf_Graph();
       $graph->parse($expandedGraph,'jsonld',null);
       dump($graph);
 
       // GRAPH upload
-      $graphUri =  $temp[1];//'http://www.example.com/testgraph';
-      $graphClasses = $this->retrieveClass($graph);
-      if ($this->graphExists($graphUri,'http://localhost:8090/testing/query')) {
-        $this->dropGraph($graphUri,'http://localhost:8090/testing/update');
+      $graphUri =  $out[2];//'http://www.example.com/testgraph';
+      if ($this->graphExists($graphUri,$this->sparqlURL . '/query')) {
+        $this->dropGraph($graphUri,$this->sparqlURL . '/update');
       }
-      dump($graphClasses);
-      dump($graph->typesAsResources());
-      $sparqlEndpoint = 'http://localhost:8090/testing/update';
+      $sparqlEndpoint = $this->sparqlURL . '/update';
       $sparqlClient = new \EasyRdf_Sparql_Client($sparqlEndpoint);
       $sparqlClient->insert($graph,$graphUri);
       dump($sparqlClient);
 
-      return new Response();
+      return new Response(200);
     }
 }

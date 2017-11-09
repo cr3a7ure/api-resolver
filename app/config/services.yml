@@ -23,3 +23,8 @@ services:
         autowire: true
         public: true
         arguments: ["@request_stack", "%sparql_host%", "%readonly_dataset%"]
+
+    AppBundle\Action\SoftwareApplicationTestingUploadAction:
+        autowire: true
+        public: true
+        arguments: ["@request_stack", "@doctrine", "%sparql_host%", "%test_dataset%"]

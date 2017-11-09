@@ -23,8 +23,8 @@ use Symfony\Component\Validator\Constraints as Assert;
  *             attributes={
  *                 "filters"={"soft_apps.search"},
  *                 "denormalization_context"={
- *                     "groups"={"write_graph"},
- *                     "api_allow_update"={true}}
+ *                     "groups"={"write_graph"}
+ *                     }
  *              }
  *         )
  */
