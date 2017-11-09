@@ -73,6 +73,11 @@ The client should make an HTTP PUT at `API-Resolver_BASEURL/api/match` using as 
 
 The API-Resolver will return another JSON-LD graph describing each class with it's actions.
 
+API-Platform wrapper servers:
+1. [Amadeus POI API](https://github.com/cr3a7ure/poi-api)
+2. [Skyscanner API](https://github.com/cr3a7ure/sky-api)
+3. [Amadeus Hotel API](https://github.com/cr3a7ure/hotel-api)
+4. [Sabre API](https://github.com/cr3a7ure/sabre-api)
 
 
 
